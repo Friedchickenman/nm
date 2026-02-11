@@ -1,0 +1,94 @@
+// prisma/schema.prisma
+
+// 1. Prisma 클라이언트 설정 (건드리지 마세요!)
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 2. DB 연결 설정 (나중에 .env 파일에 주소만 넣으면 됨)
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ==========================================
+// 📌 여기서부터 테이블(Entity) 정의 시작!
+// ==========================================
+
+// 3. 사용자 (User) - NextAuth(로그인) 필수 모델
+model User {
+  id            String    @id @default(cuid()) // PK (UUID 자동생성)
+  name          String?   // 닉네임
+  email         String?   @unique // 이메일 (중복 불가)
+  emailVerified DateTime?
+  image         String?   // 프로필 사진 URL
+
+  accounts      Account[] // 소셜 로그인 정보 (1:N)
+  sessions      Session[] // 로그인 세션 (1:N)
+  reviews       Review[]  // 유저가 쓴 리뷰들 (1:N)
+
+  createdAt     DateTime  @default(now()) // 가입일
+  updatedAt     DateTime  @updatedAt      // 수정일
+}
+
+// 4. 소셜 로그인 계정 정보 (카카오, 구글 등)
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String  // "kakao", "google" 등
+  providerAccountId  String  // 해당 플랫폼에서의 ID
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+// 5. 로그인 세션 관리
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// 6. 🎬 영화 리뷰 (핵심 기능!)
+model Review {
+  id        String   @id @default(cuid())
+  content   String   @db.Text // 리뷰 내용 (길게 쓸 수 있음)
+  rating    Int      // 별점 (1~5) or (1~10)
+
+  // 영화 정보는 매번 API 부르기 귀찮으니 DB에도 저장
+  movieId   String   // TMDB 영화 ID (숫자지만 문자열로 관리 추천)
+  movieTitle String  // 영화 제목
+  movieImage String? // 영화 포스터 URL
+
+  // 작성자 정보
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) // 작성일
+  updatedAt DateTime @updatedAt      // 수정일
+
+  // 🔍 검색 최적화 (인덱스)
+  @@index([movieId]) // "이 영화의 리뷰만 가져와!" 할 때 빠르게
+  @@index([userId])  // "이 사람이 쓴 리뷰만 가져와!" 할 때 빠르게
+}
+
+// 7. 이메일 인증 토큰 (로그인용)
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
