@@ -63,25 +63,21 @@ model Session {
 
 // 6. 🎬 영화 리뷰 (핵심 기능!)
 model Review {
-  id        String   @id @default(cuid())
-  content   String   @db.Text // 리뷰 내용 (길게 쓸 수 있음)
-  rating    Int      // 별점 (1~5) or (1~10)
+  id         String   @id @default(cuid())
 
-  // 영화 정보는 매번 API 부르기 귀찮으니 DB에도 저장
-  movieId   String   // TMDB 영화 ID (숫자지만 문자열로 관리 추천)
-  movieTitle String  // 영화 제목
-  movieImage String? // 영화 포스터 URL
+  // 핵심 데이터
+  movieId    Int      // TMDB ID (숫자 그대로 쓰는 게 API 연동 시 편함)
+  waterLevel Int      // 비커에 담긴 물의 양 (0~500ml로 관리)
+  content    String?  @db.Text // 한 줄 평 (선택사항)
 
-  // 작성자 정보
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // 관계 설정
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now()) // 작성일
-  updatedAt DateTime @updatedAt      // 수정일
+  createdAt  DateTime @default(now())
 
-  // 🔍 검색 최적화 (인덱스)
-  @@index([movieId]) // "이 영화의 리뷰만 가져와!" 할 때 빠르게
-  @@index([userId])  // "이 사람이 쓴 리뷰만 가져와!" 할 때 빠르게
+  @@index([movieId])
+  @@index([userId])
 }
 
 // 7. 이메일 인증 토큰 (로그인용)

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 // 1. TMDB에서 영화 데이터를 가져오는 함수
 async function getPopularMovies() {
@@ -32,7 +33,7 @@ export default async function HomePage() {
             {/* 영화 포스터 그리드 레이아웃 */}
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                 {movies.map((movie: any) => (
-                    <div key={movie.id} className="group cursor-pointer">
+                    <Link href={`/movie/${movie.id}`} key={movie.id} className="group cursor-pointer">
                         {/* 포스터 이미지 */}
                         <div className="relative aspect-[2/3] overflow-hidden rounded-md bg-zinc-900">
                             <Image
@@ -50,7 +51,7 @@ export default async function HomePage() {
                                 {movie.release_date.split("-")[0]} • ★ {movie.vote_average.toFixed(1)}
                             </p>
                         </div>
-                    </div>
+                    </Link>
                 ))}
             </div>
         </div>
