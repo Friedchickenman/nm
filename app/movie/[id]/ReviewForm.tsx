@@ -8,20 +8,30 @@ export default function ReviewForm({ movieId, userId }: { movieId: number; userI
     const [content, setContent] = useState(""); // 한 줄 평 내용
     const [isPending, setIsPending] = useState(false); // 저장 중 상태 확인
 
+    // ReviewForm.tsx 내부의 handleSubmit 함수
+
     const handleSubmit = async () => {
+        // 텍스트가 비어있으면 저장 안 되게 방어 로직 추가
+        if (!content.trim()) return alert("Please share your vibe first!");
+
         setIsPending(true);
 
-        // 10% 단위로 끊긴 level 값을 500ml 기준으로 환산 (예: 20% -> 100ml)
+        // 500ml 기준으로 환산
         const waterLevel = Math.round((level / 100) * 500);
 
-        // 서버 액션을 통해 DB에 저장
+        // 서버 액션 실행
         const result = await saveReview({ movieId, waterLevel, content, userId });
 
         if (result.success) {
-            alert("Movie vibe saved to your beaker! 🧪");
+            // ✨ 핵심: 저장이 성공하면 입력값들을 초기화합니다.
+            // revalidatePath 덕분에 아래 리뷰 목록은 서버에서 새로 받아와서 슥 업데이트
             setContent("");
+            setLevel(0);
+
+            // alert은 흐름을 끊을 수 있으니, 디자인에 따라 빼셔도 됩니다.
+            alert("Movie vibe recorded in the lab! 🧪");
         } else {
-            alert("Failed to save. Please try again.");
+            alert("Failed to sync with the lab. Try again.");
         }
         setIsPending(false);
     };

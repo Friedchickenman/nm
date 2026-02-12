@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+
 // 1. TMDB에서 영화 데이터를 가져오는 함수
 async function getPopularMovies() {
     const res = await fetch(
