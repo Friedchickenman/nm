@@ -12,4 +12,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     // 세션 전략을 설정합니다. (호환성을 위해 jwt 방식 사용)
     session: { strategy: "jwt" },
+
+    callbacks: {
+        session({ session, token }) {
+            // 토큰(신분증)에 있는 유저 고유 ID를 세션 객체에 강제로 꽂아 넣습니다.
+            if (token.sub && session.user) {
+                session.user.id = token.sub;
+            }
+            return session;
+        },
+    },
 });

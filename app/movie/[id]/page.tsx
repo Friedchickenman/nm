@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { db } from "@/lib/db";
 import ReviewForm from "./ReviewForm";
+import { auth } from "@/auth";
 
 // 1. TMDB API에서 영화 상세 정보를 가져오는 함수
 async function getMovieDetail(id: string) {
@@ -21,6 +22,8 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
     const { id } = await params;
     const movie = await getMovieDetail(id);
 
+    const session = await auth();
+
     // 2. DB에서 이 영화의 리뷰 목록을 최신순으로 가져오기
     const reviews = await db.review.findMany({
         where: { movieId: Number(id) },
@@ -29,8 +32,6 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
     });
 
     if (!movie) return <div className="p-20 text-white">Movie not found.</div>;
-
-    const tempUserId = "cl-12345";
 
     return (
         <div className="min-h-screen bg-black text-white">
@@ -69,7 +70,16 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                 <div className="mt-24 border-t border-zinc-900 pt-16">
                     <h2 className="text-3xl font-black mb-2 tracking-tighter uppercase italic">Mood Measurement</h2>
                     <p className="text-zinc-500 mb-10 text-xs">Analyze your emotions through the beaker.</p>
-                    <ReviewForm movieId={Number(id)} userId={tempUserId} />
+                    {session?.user ? (
+                        <ReviewForm movieId={Number(id)} userId={session.user.id as string} />
+                    ) : (
+                        <div className="p-10 border border-zinc-800 rounded-2xl bg-zinc-950/50 text-center">
+                            <p className="text-zinc-400 text-sm font-semibold uppercase tracking-widest mb-4">
+                                Authentication Required
+                            </p>
+                            <p className="text-zinc-500 text-xs">Please log in from the top right to record your experimental data.</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* 리뷰 목록 표시 */}
