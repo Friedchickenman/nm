@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ReviewForm from "./ReviewForm";
+import { deleteReview } from "./actions"; // ✨ 이거 추가!
 
 // 타입 정의 (Prisma에서 불러온 리뷰 데이터 모양)
 interface ReviewItemProps {
@@ -64,6 +65,17 @@ export default function ReviewItem({ review, currentUserId, movieId }: ReviewIte
                                 className="text-xs font-bold text-zinc-500 hover:text-blue-500 transition-colors uppercase tracking-widest"
                             >
                                 Edit
+                            </button>
+                            {/* 🚨 삭제 버튼 추가! 실수로 누르지 않게 confirm 창도 띄워줍니다. */}
+                            <button
+                                onClick={async () => {
+                                    if (confirm("Are you sure you want to discard this beaker? 🗑️")) {
+                                        await deleteReview(review.id);
+                                    }
+                                }}
+                                className="text-xs font-bold text-red-500 hover:text-red-400 transition-all uppercase tracking-widest"
+                            >
+                                Delete
                             </button>
                         </div>
                     )}

@@ -55,3 +55,19 @@ export async function updateReview({
         return { success: false, message: "Failed to update review." };
     }
 }
+
+export async function deleteReview(reviewId: string) {
+    try {
+        await db.review.delete({
+            where: { id: reviewId },
+        });
+
+        // 삭제 후 화면 새로고침
+        revalidatePath("/movie/[id]", "page");
+
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to delete review:", error);
+        return { success: false };
+    }
+}
