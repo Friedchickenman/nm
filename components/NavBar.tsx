@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { auth, signIn, signOut } from "@/auth";
-// ✨ 방금 만든 진짜 검색창 불러오기!
 import SearchInput from "./SearchInput";
 
 export default async function NavBar() {
@@ -12,25 +11,26 @@ export default async function NavBar() {
             <div className="max-w-screen-xl mx-auto px-6 h-14 flex items-center justify-between">
 
                 {/* 왼쪽 로고 및 메뉴 */}
-                <div className="flex items-center gap-10">
+                <div className="flex items-center gap-5 md:gap-10">
                     <Link href="/" className="text-lg font-black tracking-tighter hover:opacity-70 transition-opacity">
                         Mvcount
                     </Link>
 
-                    <div className="hidden md:flex items-center gap-8 text-[13px] font-medium text-zinc-500">
+                    {/* ✨ hidden을 제거하여 모바일에서도 메뉴가 보이게 수정됨 */}
+                    <div className="flex items-center gap-4 md:gap-8 text-xs md:text-[13px] font-medium text-zinc-500">
 
                         {session?.user && (
                             <Link href="/archive" className="hover:text-black transition-colors">Archive</Link>
                         )}
 
-                        <Link href="/" className="hover:text-black transition-colors">Community</Link>
+                        {/* Community는 공간 확보를 위해 모바일에서만 숨김 처리 */}
+                        <Link href="/" className="hover:text-black transition-colors hidden sm:block">Community</Link>
                     </div>
                 </div>
 
                 {/* 오른쪽 검색창 및 로그인/아웃 버튼 */}
                 <div className="flex items-center gap-6">
 
-                    {/* ✨ 가짜 input을 지우고 진짜 SearchInput으로 교체! */}
                     <SearchInput />
 
                     {session?.user ? (
