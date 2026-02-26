@@ -9,6 +9,7 @@ export default async function NavBar() {
         <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-zinc-100">
             <div className="max-w-screen-xl mx-auto px-6 h-14 flex items-center justify-between">
 
+                {/* 왼쪽 로고 및 메뉴 */}
                 <div className="flex items-center gap-10">
                     <Link href="/" className="text-lg font-black tracking-tighter hover:opacity-70 transition-opacity">
                         Mvcount
@@ -16,11 +17,17 @@ export default async function NavBar() {
 
                     <div className="hidden md:flex items-center gap-8 text-[13px] font-medium text-zinc-500">
                         <Link href="/" className="hover:text-black transition-colors">Discover</Link>
-                        <Link href="/" className="hover:text-black transition-colors">Archive</Link>
+
+                        {/* ✨ 로그인한 유저에게만 Archive(마이페이지) 버튼을 보여줍니다! */}
+                        {session?.user && (
+                            <Link href="/archive" className="hover:text-black transition-colors">Archive</Link>
+                        )}
+
                         <Link href="/" className="hover:text-black transition-colors">Community</Link>
                     </div>
                 </div>
 
+                {/* 오른쪽 검색창 및 로그인/아웃 버튼 */}
                 <div className="flex items-center gap-6">
                     <div className="relative hidden sm:block">
                         <input
@@ -31,7 +38,7 @@ export default async function NavBar() {
                     </div>
 
                     {session?.user ? (
-                        // 로그인된 상태: 프로필 이미지와 Log out 버튼
+                        // 로그인된 상태
                         <div className="flex items-center gap-4">
                             <img
                                 src={session.user.image || ""}
@@ -48,11 +55,11 @@ export default async function NavBar() {
                             </form>
                         </div>
                     ) : (
-                        // 로그아웃 상태: 기존 성준님 디자인 그대로 유지! (Link 대신 form/button으로 변경)
+                        // 로그아웃 상태
                         <div className="flex items-center gap-4 text-[13px] font-semibold">
                             <form action={async () => {
                                 "use server";
-                                await signIn("google"); // 구글 로그인 창으로 이동
+                                await signIn("google");
                             }}>
                                 <button className="text-zinc-400 hover:text-black transition-colors">
                                     Log in
@@ -61,7 +68,7 @@ export default async function NavBar() {
 
                             <form action={async () => {
                                 "use server";
-                                await signIn("google"); // 임시로 Sign up도 구글 로그인으로 연결
+                                await signIn("google");
                             }}>
                                 <button className="bg-black text-white px-4 py-1.5 rounded-full hover:bg-zinc-800 transition-all">
                                     Sign up
