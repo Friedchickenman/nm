@@ -34,6 +34,11 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
 
     if (!movie) return <div className="p-20 text-white">Movie not found.</div>;
 
+    // ✨ 전체 비커의 평균 물 높이 계산하기
+    const totalWaterLevel = reviews.reduce((acc, curr) => acc + curr.waterLevel, 0);
+    const avgWaterLevel = reviews.length > 0 ? totalWaterLevel / reviews.length : 0;
+    const avgPercent = Math.round((avgWaterLevel / 500) * 100);
+
     return (
         <div className="min-h-screen bg-black text-white">
             {/* 🎥 [상단] 포스터 배경 섹션 - 이 부분이 가장 위에 있어야 합니다 */}
@@ -61,10 +66,25 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
 
             {/* 🧪 [하단] 상세 정보 및 비커 리뷰 섹션 */}
             <div className="p-10 max-w-screen-xl mx-auto">
-                <div className="flex items-center gap-6 text-sm font-bold tracking-widest text-zinc-500 uppercase">
+                <div className="flex items-center gap-6 text-sm font-bold tracking-widest text-zinc-500 uppercase mb-10">
                     <span>{movie.release_date?.split("-")[0]}</span>
                     <span className="w-1 h-1 bg-zinc-700 rounded-full" />
-                    <span className="text-blue-500">★ {movie.vote_average.toFixed(1)}</span>
+                    <span className="text-zinc-400">TMDB ★ {movie.vote_average.toFixed(1)}</span>
+
+                    {/* ✨ 여기에 '우리 실험실(Lab) 평균 비커'가 들어갑니다! */}
+                    <span className="w-1 h-1 bg-zinc-700 rounded-full" />
+                    <div className="flex items-center gap-2">
+                        <div className="relative w-4 h-6 border-x border-b border-zinc-500 rounded-b-sm overflow-hidden bg-zinc-900">
+                            <div
+                                className="absolute bottom-0 w-full bg-blue-500 transition-all duration-1000"
+                                style={{ height: `${avgPercent}%` }}
+                            />
+                        </div>
+                        <span className="text-blue-500 font-black">
+                            LAB AVG : {reviews.length > 0 ? `${avgPercent}%` : 'N/A'}
+                        </span>
+                        <span className="text-xs text-zinc-600 ml-1">({reviews.length} reviews)</span>
+                    </div>
                 </div>
 
                 {/* 비커 입력 폼 */}
