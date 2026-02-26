@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { db } from "@/lib/db";
 import ReviewForm from "./ReviewForm";
+import ReviewItem from "./ReviewItem";
 import { auth } from "@/auth";
 
 // 1. TMDB API에서 영화 상세 정보를 가져오는 함수
@@ -90,23 +91,13 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                     ) : (
                         <div className="grid gap-10">
                             {reviews.map((review) => (
-                                <div key={review.id} className="flex gap-8 items-start border-b border-zinc-900 pb-10">
-                                    {/* 리스트 내 작은 비커 아이콘 */}
-                                    <div className="relative w-10 h-14 border-x-2 border-b-2 border-zinc-700 rounded-b-lg bg-zinc-950 overflow-hidden shrink-0">
-                                        <div
-                                            className="absolute bottom-0 w-full bg-blue-500/20"
-                                            style={{ height: `${(review.waterLevel / 500) * 100}%` }}
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">
-                                                {review.user?.name || "Anonymous Lab Member"}
-                                            </span>
-                                        </div>
-                                        <p className="text-lg italic text-zinc-200">"{review.content}"</p>
-                                    </div>
-                                </div>
+                                // ✨ 여기서 기존의 긴 코드를 지우고 ReviewItem을 씁니다!
+                                <ReviewItem
+                                    key={review.id}
+                                    review={review}
+                                    currentUserId={session?.user?.id}
+                                    movieId={Number(id)}
+                                />
                             ))}
                         </div>
                     )}

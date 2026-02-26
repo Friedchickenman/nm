@@ -58,7 +58,7 @@ export default function ReviewItem({ review, currentUserId, movieId }: ReviewIte
 
                     {/* ✨ 내 글일 때만 [Edit] 버튼이 나타납니다! (마우스 올리면 스윽 나타남) */}
                     {isMyReview && (
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-3">
+                        <div className="flex gap-3">
                             <button
                                 onClick={() => setIsEditing(true)}
                                 className="text-xs font-bold text-zinc-500 hover:text-blue-500 transition-colors uppercase tracking-widest"
@@ -68,7 +68,10 @@ export default function ReviewItem({ review, currentUserId, movieId }: ReviewIte
                         </div>
                     )}
                 </div>
-                <p className="text-lg italic text-zinc-200">"{review.content}"</p>
+                <p className="text-red-500 text-xs font-bold mb-2">
+                    내 ID: {currentUserId || "없음"} | 글쓴이 ID: {review.userId}
+                </p>
+                <p className="text-lg italic text-zinc-200">{review.content}</p>
             </div>
         </div>
     );
