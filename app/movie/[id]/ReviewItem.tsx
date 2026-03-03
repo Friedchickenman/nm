@@ -2,48 +2,45 @@
 
 import { useState } from "react";
 import ReviewForm from "./ReviewForm";
-import { deleteReview } from "./actions"; // ✨ 이거 추가!
+import { deleteReview } from "./actions";
 
-// 타입 정의 (Prisma에서 불러온 리뷰 데이터 모양)
+// 1. 타입 정의 수정: content가 null일 수 있음을 명시합니다.
 interface ReviewItemProps {
     review: {
         id: string;
-        content: string;
+        content: string | null; // ✨ string에서 string | null로 변경하여 에러 해결
         waterLevel: number;
         userId: string;
         user: { name: string | null } | null;
     };
-    currentUserId?: string; // 현재 로그인한 사람의 ID
+    currentUserId?: string;
     movieId: number;
 }
 
 export default function ReviewItem({ review, currentUserId, movieId }: ReviewItemProps) {
-    // ✨ 이 스위치가 true가 되면 리뷰 텍스트 대신 '수정 폼'이 나타납니다!
     const [isEditing, setIsEditing] = useState(false);
-
-    // ✨ 핵심: 지금 로그인한 사람과, 이 글을 쓴 사람의 ID가 같은지 확인!
     const isMyReview = currentUserId === review.userId;
 
-    // 1. [수정 모드] 일 때의 화면 (ReviewForm 재활용!)
+    // [수정 모드] 화면
     if (isEditing) {
         return (
             <div className="border-b border-zinc-900 pb-10">
                 <ReviewForm
                     movieId={movieId}
-                    userId={currentUserId!} // 수정 모드일 땐 무조건 내 글이므로 ! 사용
+                    userId={currentUserId!}
                     reviewId={review.id}
                     initialWaterLevel={review.waterLevel}
-                    initialContent={review.content}
-                    onCancel={() => setIsEditing(false)} // 취소 버튼 누르면 폼 닫기
+                    initialContent={review.content ?? ""} // ✨ null일 경우 빈 문자열 전달
+                    onCancel={() => setIsEditing(false)}
                 />
             </div>
         );
     }
 
-    // 2. [일반 모드] 일 때의 화면 (기존 성준님의 힙한 리스트 디자인 그대로!)
+    // [일반 모드] 화면
     return (
         <div className="flex gap-8 items-start border-b border-zinc-900 pb-10 group">
-            {/* 작은 비커 아이콘 */}
+            {/* 비커 아이콘 */}
             <div className="relative w-10 h-14 border-x-2 border-b-2 border-zinc-700 rounded-b-lg bg-zinc-950 overflow-hidden shrink-0">
                 <div
                     className="absolute bottom-0 w-full bg-blue-500/20"
@@ -57,7 +54,6 @@ export default function ReviewItem({ review, currentUserId, movieId }: ReviewIte
                         {review.user?.name || "Anonymous Lab Member"}
                     </span>
 
-                    {/* ✨ 내 글일 때만 [Edit] 버튼이 나타납니다! (마우스 올리면 스윽 나타남) */}
                     {isMyReview && (
                         <div className="flex gap-3">
                             <button
@@ -66,7 +62,6 @@ export default function ReviewItem({ review, currentUserId, movieId }: ReviewIte
                             >
                                 Edit
                             </button>
-                            {/* 🚨 삭제 버튼 추가! 실수로 누르지 않게 confirm 창도 띄워줍니다. */}
                             <button
                                 onClick={async () => {
                                     if (confirm("Are you sure you want to discard this beaker? 🗑️")) {
@@ -80,10 +75,11 @@ export default function ReviewItem({ review, currentUserId, movieId }: ReviewIte
                         </div>
                     )}
                 </div>
-                <p className="text-red-500 text-xs font-bold mb-2">
-                    내 ID: {currentUserId || "없음"} | 글쓴이 ID: {review.userId}
+
+                {/* 텍스트 렌더링: content가 null이면 안내 문구를 띄워 런타임 에러를 방지합니다. */}
+                <p className="text-lg italic text-zinc-200">
+                    {review.content || "No detailed observation provided."}
                 </p>
-                <p className="text-lg italic text-zinc-200">{review.content}</p>
             </div>
         </div>
     );
